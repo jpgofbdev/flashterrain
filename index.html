@@ -1,0 +1,1742 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+
+<meta charset="UTF-8">
+<meta name="viewport"
+content="width=device-width, initial-scale=1.0">
+
+<title>
+FlashTerrain - Capsules
+</title>
+
+<link rel="stylesheet"
+href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
+
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<script src="https://unpkg.com/@turf/turf@6/turf.min.js"></script>
+
+<style>
+
+html,body{
+margin:0;
+height:100%;
+overflow:hidden;
+font-family:"Segoe UI",Arial,sans-serif;
+}
+
+#header{
+position:absolute;
+top:0;
+left:0;
+right:0;
+height:72px;
+z-index:3000;
+display:flex;
+align-items:center;
+padding:0 22px;
+color:white;
+background:
+linear-gradient(
+135deg,
+#08253a,
+#1f5a68,
+#5a8d72
+);
+box-shadow:
+0 3px 14px rgba(0,0,0,.28);
+}
+
+#header h1{
+margin:0;
+font-size:30px;
+line-height:1;
+}
+
+#header span{
+display:block;
+margin-top:5px;
+font-size:14px;
+opacity:.88;
+}
+
+#map{
+position:absolute;
+top:72px;
+bottom:0;
+left:0;
+right:0;
+}
+
+.panel{
+position:absolute;
+top:92px;
+width:390px;
+max-height:82vh;
+overflow:auto;
+z-index:2500;
+background:
+rgba(255,255,255,.96);
+border-radius:18px;
+padding:18px;
+box-shadow:
+0 4px 18px rgba(0,0,0,.18);
+}
+
+#livePanel{
+left:18px;
+}
+
+#capsulePanel{
+right:18px;
+}
+
+.panel h2{
+margin:0 0 12px;
+color:#223845;
+font-size:23px;
+}
+
+.small{
+font-size:13px;
+color:#666;
+line-height:1.45;
+}
+
+.modeBar{
+display:flex;
+gap:10px;
+margin-top:14px;
+}
+
+.modeButton{
+flex:1;
+padding:12px;
+border-radius:14px;
+border:2px solid #d0d9df;
+background:#f5f7f9;
+cursor:pointer;
+font-weight:700;
+font-size:14px;
+text-align:center;
+transition:.2s;
+}
+
+.modeButton.active{
+background:
+linear-gradient(
+135deg,
+#1f6d89,
+#2d8b74
+);
+color:white;
+border-color:#2d8b74;
+}
+
+.modeInfo{
+margin-top:10px;
+padding:10px;
+border-radius:10px;
+background:#eef3f6;
+font-size:13px;
+color:#345;
+}
+
+.layer-row{
+margin-top:16px;
+padding:12px;
+background:#f4f7f9;
+border-radius:12px;
+border:1px solid #d9e1e7;
+}
+
+.layer-row label{
+display:block;
+margin-bottom:8px;
+}
+
+.notice{
+margin-top:14px;
+padding:12px;
+background:#eef7f3;
+border-left:4px solid #2d8b74;
+border-radius:10px;
+font-size:13px;
+color:#244;
+}
+
+button{
+border:0;
+background:
+linear-gradient(
+135deg,
+#1f6d89,
+#2d8b74
+);
+color:white;
+padding:10px 14px;
+border-radius:12px;
+font-size:14px;
+font-weight:600;
+cursor:pointer;
+margin-top:10px;
+}
+
+button:disabled{
+opacity:.45;
+cursor:not-allowed;
+}
+
+.secondary{
+background:#5f6f7a;
+}
+
+.danger{
+background:#9b3a3a;
+}
+
+.capsule{
+padding:12px;
+border-radius:14px;
+background:#f4f7f9;
+margin-bottom:12px;
+border:1px solid #d9e1e7;
+}
+
+.capsule-title{
+font-weight:700;
+color:#223845;
+}
+
+.capsule-meta{
+margin-top:6px;
+font-size:12px;
+color:#666;
+}
+
+.capsule-content{
+margin-top:8px;
+font-size:13px;
+color:#334;
+}
+
+.actions{
+display:flex;
+gap:8px;
+flex-wrap:wrap;
+}
+
+.actions button{
+font-size:12px;
+padding:7px 10px;
+}
+
+.context-popup{
+font-size:13px;
+line-height:1.45;
+}
+
+.context-section{
+margin-top:10px;
+padding-top:8px;
+border-top:1px solid #ddd;
+}
+
+.context-title{
+font-weight:700;
+margin-bottom:4px;
+}
+
+.context-item{
+margin-left:8px;
+margin-bottom:4px;
+}
+
+.toolbar{
+display:flex;
+gap:8px;
+flex-wrap:wrap;
+margin-bottom:12px;
+}
+
+.leaflet-control-layers{
+border:none!important;
+border-radius:14px!important;
+overflow:hidden;
+box-shadow:
+0 4px 14px rgba(0,0,0,.18);
+background:
+rgba(255,255,255,.95)!important;
+}
+
+@media(max-width:850px){
+
+.panel{
+left:10px!important;
+right:10px!important;
+width:auto;
+max-height:35vh;
+}
+
+#capsulePanel{
+top:auto;
+bottom:10px;
+}
+
+#header h1{
+font-size:24px;
+}
+
+#header span{
+display:none;
+}
+
+}
+
+</style>
+
+</head>
+
+<body>
+
+<div id="header">
+
+<div>
+<h1>FlashTerrain</h1>
+<span>
+Capsules territoriales offline
+</span>
+</div>
+
+</div>
+
+<div id="livePanel" class="panel">
+
+<h2>
+🌐 Contexte
+</h2>
+
+<div class="small">
+Le mode actif détermine le comportement du clic sur la carte.
+</div>
+
+<div class="modeBar">
+
+<div
+id="exploreModeBtn"
+class="modeButton active">
+🛰 Explorer
+</div>
+
+<div
+id="newPointModeBtn"
+class="modeButton">
+➕ Nouveau point
+</div>
+
+</div>
+
+<div id="modeInfo" class="modeInfo">
+
+Mode exploration :
+le clic affiche le contexte des objets présents.
+
+</div>
+
+<div class="layer-row">
+
+<label>
+<input type="checkbox"
+id="icpeCheck"
+disabled>
+
+🏭 ICPE — rayon 10 km
+</label>
+
+<label>
+<input type="checkbox"
+id="naturaCheck"
+disabled>
+
+🌿 Natura 2000 — buffer 2 km
+</label>
+
+</div>
+
+<div class="notice">
+Une capsule contient uniquement les couches cochées et visibles.
+</div>
+
+<div id="capsulePreview"
+style="margin-top:14px;font-size:13px;">
+Aucune capsule en préparation.
+</div>
+
+<button id="saveBtn" disabled>
+💾 Créer une capsule
+</button>
+
+<div id="liveInfo"
+style="margin-top:14px;font-size:13px;">
+Aucun contexte chargé.
+</div>
+
+</div>
+
+<div id="capsulePanel" class="panel">
+
+<h2>
+📦 Capsules
+</h2>
+
+<div class="toolbar">
+
+<button id="openFileBtn">
+📂 Ouvrir une capsule
+</button>
+
+<button id="exportAllBtn"
+class="secondary">
+⬇ Sauvegarder tout
+</button>
+
+<input
+type="file"
+id="importFileInput"
+accept=".json"
+style="display:none;">
+
+</div>
+
+<div class="small"
+style="margin-bottom:12px;">
+
+Les capsules sont automatiquement disponibles dans ce navigateur.<br>
+Vous pouvez également les sauvegarder sous forme de fichiers JSON.
+
+</div>
+
+<div id="capsuleList">
+
+<div class="small">
+Aucune capsule disponible.
+</div>
+
+</div>
+
+</div>
+
+<div id="map"></div>
+
+<script>
+
+/* =========================================
+MAP
+========================================= */
+
+const map =
+L.map("map")
+.setView([47.5,1.7],7);
+
+
+/* =========================================
+BASEMAP
+========================================= */
+
+const planIGN = L.tileLayer(
+'https://data.geopf.fr/wmts?' +
+'SERVICE=WMTS&REQUEST=GetTile&VERSION=1.0.0' +
+'&LAYER=GEOGRAPHICALGRIDSYSTEMS.PLANIGNV2' +
+'&STYLE=normal&TILEMATRIXSET=PM' +
+'&TILEMATRIX={z}&TILEROW={y}&TILECOL={x}' +
+'&FORMAT=image/png',
+{
+maxZoom:18,
+attribution:'IGN'
+}
+);
+
+planIGN.addTo(map);
+
+L.control.layers(
+{
+"🗺 IGN Plan":planIGN
+},
+null,
+{
+position:"bottomleft"
+}
+).addTo(map);
+
+
+/* =========================================
+INDEXED DB
+========================================= */
+
+const DB_NAME =
+"FlashTerrainDB";
+
+const STORE_NAME =
+"capsules";
+
+let db;
+
+function openDatabase(){
+
+return new Promise((resolve,reject)=>{
+
+const request =
+indexedDB.open(DB_NAME,1);
+
+request.onupgradeneeded =
+function(e){
+
+db = e.target.result;
+
+if(
+!db.objectStoreNames.contains(STORE_NAME)
+){
+
+db.createObjectStore(
+STORE_NAME,
+{
+keyPath:"id"
+}
+);
+
+}
+
+};
+
+request.onsuccess =
+function(e){
+
+db = e.target.result;
+resolve();
+
+};
+
+request.onerror =
+function(e){
+
+reject(e);
+
+};
+
+});
+
+}
+
+function saveCapsuleToDB(capsule){
+
+return new Promise((resolve,reject)=>{
+
+const transaction =
+db.transaction(
+[STORE_NAME],
+"readwrite"
+);
+
+const store =
+transaction.objectStore(STORE_NAME);
+
+const request =
+store.put(capsule);
+
+request.onsuccess =
+()=>resolve();
+
+request.onerror =
+e => reject(e);
+
+});
+
+}
+
+function getAllCapsules(){
+
+return new Promise((resolve,reject)=>{
+
+const transaction =
+db.transaction(
+[STORE_NAME],
+"readonly"
+);
+
+const store =
+transaction.objectStore(STORE_NAME);
+
+const request =
+store.getAll();
+
+request.onsuccess =
+()=>resolve(request.result);
+
+request.onerror =
+e => reject(e);
+
+});
+
+}
+
+function deleteCapsuleFromDB(id){
+
+return new Promise((resolve,reject)=>{
+
+const transaction =
+db.transaction(
+[STORE_NAME],
+"readwrite"
+);
+
+const store =
+transaction.objectStore(STORE_NAME);
+
+const request =
+store.delete(id);
+
+request.onsuccess =
+()=>resolve();
+
+request.onerror =
+e => reject(e);
+
+});
+
+}
+
+
+/* =========================================
+STATE
+========================================= */
+
+let interactionMode =
+"explore";
+
+let currentLat = null;
+let currentLon = null;
+
+let currentData = {
+icpe:null,
+natura:null
+};
+
+
+/* =========================================
+MODE
+========================================= */
+
+function setMode(mode){
+
+interactionMode = mode;
+
+document
+.getElementById("exploreModeBtn")
+.classList.remove("active");
+
+document
+.getElementById("newPointModeBtn")
+.classList.remove("active");
+
+if(mode === "explore"){
+
+document
+.getElementById("exploreModeBtn")
+.classList.add("active");
+
+document
+.getElementById("modeInfo")
+.innerHTML =
+`
+Mode exploration :
+le clic affiche le contexte des objets présents.
+`;
+
+}else{
+
+document
+.getElementById("newPointModeBtn")
+.classList.add("active");
+
+document
+.getElementById("modeInfo")
+.innerHTML =
+`
+Mode nouveau point :
+le prochain clic déclenchera une nouvelle requête réseau.
+`;
+
+}
+
+}
+
+document
+.getElementById("exploreModeBtn")
+.addEventListener("click",()=>{
+setMode("explore");
+});
+
+document
+.getElementById("newPointModeBtn")
+.addEventListener("click",()=>{
+setMode("newPoint");
+});
+
+
+/* =========================================
+LAYERS
+========================================= */
+
+const markerLayer =
+L.layerGroup().addTo(map);
+
+const bufferLayer =
+L.layerGroup().addTo(map);
+
+const icpeLayer =
+L.geoJSON(null,{
+pointToLayer:function(feature,latlng){
+
+return L.circleMarker(latlng,{
+radius:7,
+color:"#8e44ad",
+fillColor:"#8e44ad",
+fillOpacity:.85,
+weight:2
+});
+
+}
+}).addTo(map);
+
+const naturaLayer =
+L.geoJSON(null,{
+style:function(){
+
+return {
+color:"#2ca25f",
+weight:2,
+fillColor:"#2ca25f",
+fillOpacity:.18
+};
+
+}
+}).addTo(map);
+
+
+/* =========================================
+NATURA API
+========================================= */
+
+async function queryNaturaHabitats(lat, lon){
+
+const buffer =
+turf.buffer(
+turf.point([lon,lat]),
+2,
+{units:"kilometers"}
+);
+
+const params =
+new URLSearchParams({
+geom:
+JSON.stringify(buffer.geometry),
+_limit:"1000"
+});
+
+const url =
+"https://apicarto.ign.fr/api/nature/natura-habitat?" +
+params.toString();
+
+const response =
+await fetch(url);
+
+const data =
+await response.json();
+
+return data.features ? data : {
+type:"FeatureCollection",
+features:[]
+};
+
+}
+
+
+/* =========================================
+ICPE API
+========================================= */
+
+async function queryIcpeReelles(lat, lon){
+
+const url =
+"https://georisques.gouv.fr/api/v1/installations_classees" +
+"?latlon=" +
+encodeURIComponent(lon + "," + lat) +
+"&rayon=10000&page=1&page_size=200";
+
+const response =
+await fetch(url);
+
+const data =
+await response.json();
+
+const installations =
+data.data || [];
+
+const features =
+installations
+.filter(i =>
+Number.isFinite(Number(i.latitude)) &&
+Number.isFinite(Number(i.longitude))
+)
+.map(i => ({
+
+type:"Feature",
+
+geometry:{
+type:"Point",
+coordinates:[
+Number(i.longitude),
+Number(i.latitude)
+]
+},
+
+properties:{
+raisonSociale:
+i.raisonSociale || null,
+
+commune:
+i.commune || null,
+
+regime:
+i.regime || null,
+
+siret:
+i.siret || null
+}
+
+}));
+
+return {
+type:"FeatureCollection",
+features
+};
+
+}
+
+
+/* =========================================
+LOAD CONTEXT
+========================================= */
+
+async function loadContext(lat, lon){
+
+currentLat = lat;
+currentLon = lon;
+
+markerLayer.clearLayers();
+bufferLayer.clearLayers();
+
+icpeLayer.clearLayers();
+naturaLayer.clearLayers();
+
+document
+.getElementById("liveInfo")
+.innerHTML =
+"Chargement des données...";
+
+L.marker([lat,lon])
+.addTo(markerLayer);
+
+L.circle(
+[lat,lon],
+{
+radius:10000,
+color:"#8e44ad",
+dashArray:"6,6",
+fillOpacity:0.03
+}
+).addTo(bufferLayer);
+
+L.circle(
+[lat,lon],
+{
+radius:2000,
+color:"#2ca25f",
+dashArray:"4,4",
+fillOpacity:0.02
+}
+).addTo(bufferLayer);
+
+try{
+
+currentData.icpe =
+await queryIcpeReelles(lat,lon);
+
+}catch(err){
+
+console.error(err);
+
+currentData.icpe = {
+type:"FeatureCollection",
+features:[]
+};
+
+}
+
+try{
+
+currentData.natura =
+await queryNaturaHabitats(lat,lon);
+
+}catch(err){
+
+console.error(err);
+
+currentData.natura = {
+type:"FeatureCollection",
+features:[]
+};
+
+}
+
+document
+.getElementById("icpeCheck")
+.disabled = false;
+
+document
+.getElementById("naturaCheck")
+.disabled = false;
+
+document
+.getElementById("icpeCheck")
+.checked =
+currentData.icpe.features.length > 0;
+
+document
+.getElementById("naturaCheck")
+.checked =
+currentData.natura.features.length > 0;
+
+refreshLayers();
+
+document
+.getElementById("saveBtn")
+.disabled = false;
+
+document
+.getElementById("liveInfo")
+.innerHTML =
+
+`
+<b>Contexte chargé</b><br><br>
+
+🏭 ICPE :
+${currentData.icpe.features.length}<br>
+
+🌿 Natura :
+${currentData.natura.features.length}
+`;
+
+}
+
+
+/* =========================================
+MAP CLICK
+========================================= */
+
+map.on("click",
+async function(e){
+
+if(interactionMode === "newPoint"){
+
+await loadContext(
+e.latlng.lat,
+e.latlng.lng
+);
+
+setMode("explore");
+
+return;
+
+}
+
+showContextPopup(e);
+
+});
+
+
+/* =========================================
+POPUP
+========================================= */
+
+function showContextPopup(e){
+
+if(
+!currentData.icpe &&
+!currentData.natura
+){
+return;
+}
+
+const clickPoint =
+turf.point([
+e.latlng.lng,
+e.latlng.lat
+]);
+
+let html =
+'<div class="context-popup">' +
+'<b>📍 Contexte sous le clic</b>';
+
+let found = false;
+
+const icpeHits = [];
+
+if(
+document
+.getElementById("icpeCheck")
+.checked &&
+currentData.icpe
+){
+
+currentData.icpe.features
+.forEach(f => {
+
+const coords =
+f.geometry.coordinates;
+
+const dist =
+turf.distance(
+clickPoint,
+turf.point(coords),
+{units:"kilometers"}
+);
+
+if(dist < 0.25){
+
+icpeHits.push(f);
+
+}
+
+});
+
+}
+
+if(icpeHits.length > 0){
+
+found = true;
+
+html +=
+'<div class="context-section">' +
+'<div class="context-title">' +
+'🏭 ICPE (' +
+icpeHits.length +
+')</div>';
+
+icpeHits.forEach(f => {
+
+html +=
+'<div class="context-item">• ' +
+(
+f.properties.raisonSociale ||
+"ICPE"
+) +
+'</div>';
+
+});
+
+html += '</div>';
+
+}
+
+const naturaHits = [];
+
+if(
+document
+.getElementById("naturaCheck")
+.checked &&
+currentData.natura
+){
+
+currentData.natura.features
+.forEach(f => {
+
+try{
+
+const inside =
+turf.booleanPointInPolygon(
+clickPoint,
+f
+);
+
+if(inside){
+
+naturaHits.push(f);
+
+}
+
+}catch(err){}
+
+});
+
+}
+
+if(naturaHits.length > 0){
+
+found = true;
+
+html +=
+'<div class="context-section">' +
+'<div class="context-title">' +
+'🌿 Natura 2000 (' +
+naturaHits.length +
+')</div>';
+
+naturaHits.forEach(f => {
+
+const p =
+f.properties || {};
+
+html +=
+'<div class="context-item">• ' +
+(
+p.nom_site ||
+p.SITENAME ||
+p.nom ||
+"Natura 2000"
+) +
+'</div>';
+
+});
+
+html += '</div>';
+
+}
+
+if(found){
+
+html += '</div>';
+
+L.popup({
+maxWidth:320
+})
+.setLatLng(e.latlng)
+.setContent(html)
+.openOn(map);
+
+}
+
+}
+
+
+/* =========================================
+REFRESH LAYERS
+========================================= */
+
+function refreshLayers(){
+
+icpeLayer.clearLayers();
+naturaLayer.clearLayers();
+
+if(
+document
+.getElementById("icpeCheck")
+.checked &&
+currentData.icpe
+){
+icpeLayer.addData(currentData.icpe);
+}
+
+if(
+document
+.getElementById("naturaCheck")
+.checked &&
+currentData.natura
+){
+naturaLayer.addData(currentData.natura);
+}
+
+updatePreview();
+
+}
+
+document
+.getElementById("icpeCheck")
+.addEventListener(
+"change",
+refreshLayers
+);
+
+document
+.getElementById("naturaCheck")
+.addEventListener(
+"change",
+refreshLayers
+);
+
+
+/* =========================================
+PREVIEW
+========================================= */
+
+function estimateSizeKo(obj){
+
+const bytes =
+new Blob([
+JSON.stringify(obj)
+]).size;
+
+return Math.round(
+bytes / 1024 * 10
+)/10;
+
+}
+
+function updatePreview(){
+
+const labels = [];
+let objectCount = 0;
+
+if(
+document
+.getElementById("icpeCheck")
+.checked &&
+currentData.icpe
+){
+
+labels.push("ICPE");
+
+objectCount +=
+currentData.icpe.features.length;
+
+}
+
+if(
+document
+.getElementById("naturaCheck")
+.checked &&
+currentData.natura
+){
+
+labels.push("Natura 2000");
+
+objectCount +=
+currentData.natura.features.length;
+
+}
+
+if(labels.length === 0){
+
+document
+.getElementById("capsulePreview")
+.innerHTML =
+"Aucune capsule en préparation.";
+
+return;
+
+}
+
+document
+.getElementById("capsulePreview")
+.innerHTML =
+
+`
+<b>Capsule en préparation</b><br><br>
+
+🧩 Couches :
+${labels.join(", ")}<br>
+
+🗂 Objets :
+${objectCount}
+`;
+
+}
+
+
+/* =========================================
+CREATE CAPSULE
+========================================= */
+
+document
+.getElementById("saveBtn")
+.addEventListener(
+"click",
+saveCapsule
+);
+
+async function saveCapsule(){
+
+const layers = {};
+const labels = [];
+
+if(
+document
+.getElementById("icpeCheck")
+.checked &&
+currentData.icpe
+){
+
+layers.icpe =
+currentData.icpe;
+
+labels.push("ICPE");
+
+}
+
+if(
+document
+.getElementById("naturaCheck")
+.checked &&
+currentData.natura
+){
+
+layers.natura =
+currentData.natura;
+
+labels.push("Natura 2000");
+
+}
+
+if(labels.length === 0){
+
+alert(
+"Aucune couche cochée."
+);
+
+return;
+
+}
+
+const capsule = {
+
+id:Date.now(),
+
+name:
+"Capsule " +
+labels.join(" + ") +
+" - " +
+new Date()
+.toLocaleString("fr-FR"),
+
+date:
+new Date().toISOString(),
+
+lat:
+currentLat,
+
+lon:
+currentLon,
+
+layers,
+
+layerLabels:
+labels,
+
+sizeKo:null,
+
+metadata:{
+version:"1.0",
+source:"FlashTerrain"
+}
+
+};
+
+capsule.sizeKo =
+estimateSizeKo(capsule);
+
+await saveCapsuleToDB(capsule);
+
+await loadCapsules();
+
+alert(
+"Capsule créée."
+);
+
+}
+
+
+/* =========================================
+EXPORT
+========================================= */
+
+function exportCapsule(capsule){
+
+const blob =
+new Blob(
+[
+JSON.stringify(capsule,null,2)
+],
+{
+type:"application/json"
+}
+);
+
+const url =
+URL.createObjectURL(blob);
+
+const a =
+document.createElement("a");
+
+a.href = url;
+
+a.download =
+(
+capsule.name ||
+"capsule"
+)
+.replace(/[^a-z0-9]/gi,"_") +
+".json";
+
+a.click();
+
+URL.revokeObjectURL(url);
+
+}
+
+async function exportAllCapsules(){
+
+const capsules =
+await getAllCapsules();
+
+const blob =
+new Blob(
+[
+JSON.stringify(capsules,null,2)
+],
+{
+type:"application/json"
+}
+);
+
+const url =
+URL.createObjectURL(blob);
+
+const a =
+document.createElement("a");
+
+a.href = url;
+
+a.download =
+"flashterrain_capsules.json";
+
+a.click();
+
+URL.revokeObjectURL(url);
+
+}
+
+async function exportCapsuleById(id){
+
+const capsules =
+await getAllCapsules();
+
+const capsule =
+capsules.find(c => c.id === id);
+
+if(capsule){
+
+exportCapsule(capsule);
+
+}
+
+}
+
+
+/* =========================================
+IMPORT
+========================================= */
+
+async function importCapsules(file){
+
+const text =
+await file.text();
+
+let imported =
+JSON.parse(text);
+
+if(!Array.isArray(imported)){
+imported = [imported];
+}
+
+for(const capsule of imported){
+
+if(
+capsule &&
+capsule.id &&
+capsule.layers
+){
+
+await saveCapsuleToDB(capsule);
+
+}
+
+}
+
+await loadCapsules();
+
+alert(
+imported.length +
+" capsule(s) ouverte(s)."
+);
+
+}
+
+
+/* =========================================
+LOAD CAPSULES
+========================================= */
+
+async function loadCapsules(){
+
+const container =
+document.getElementById("capsuleList");
+
+const capsules =
+await getAllCapsules();
+
+if(capsules.length === 0){
+
+container.innerHTML =
+'<div class="small">' +
+'Aucune capsule disponible.' +
+'</div>';
+
+return;
+
+}
+
+container.innerHTML = "";
+
+capsules
+.slice()
+.reverse()
+.forEach(function(capsule){
+
+const div =
+document.createElement("div");
+
+div.className =
+"capsule";
+
+let objectCount = 0;
+
+Object.values(capsule.layers)
+.forEach(function(layer){
+
+if(layer && layer.features){
+
+objectCount +=
+layer.features.length;
+
+}
+
+});
+
+div.innerHTML =
+
+'<div class="capsule-title">' +
+capsule.name +
+'</div>' +
+
+'<div class="capsule-meta">' +
+new Date(capsule.date)
+.toLocaleString("fr-FR") +
+'</div>' +
+
+'<div class="capsule-content">' +
+
+'📍 ' +
+capsule.lat.toFixed(5) +
+', ' +
+capsule.lon.toFixed(5) +
+'<br>' +
+
+'🧩 ' +
+capsule.layerLabels.join(", ") +
+'<br>' +
+
+'🗂 ' +
+objectCount +
+' objets<br>' +
+
+'📦 ' +
+capsule.sizeKo +
+' Ko' +
+
+'</div>' +
+
+'<div class="actions">' +
+
+'<button class="secondary" onclick="openCapsule(' +
+capsule.id +
+')">📂 Ouvrir</button>' +
+
+'<button onclick="exportCapsuleById(' +
+capsule.id +
+')">⬇ Sauvegarder</button>' +
+
+'<button class="danger" onclick="deleteCapsule(' +
+capsule.id +
+')">🗑 Supprimer</button>' +
+
+'</div>';
+
+container.appendChild(div);
+
+});
+
+}
+
+
+/* =========================================
+OPEN CAPSULE
+========================================= */
+
+async function openCapsule(id){
+
+const capsules =
+await getAllCapsules();
+
+const capsule =
+capsules.find(c => c.id === id);
+
+if(!capsule){
+return;
+}
+
+currentLat =
+capsule.lat;
+
+currentLon =
+capsule.lon;
+
+currentData = {
+icpe:
+capsule.layers.icpe || null,
+
+natura:
+capsule.layers.natura || null
+};
+
+markerLayer.clearLayers();
+bufferLayer.clearLayers();
+
+icpeLayer.clearLayers();
+naturaLayer.clearLayers();
+
+L.marker([
+currentLat,
+currentLon
+]).addTo(markerLayer);
+
+document
+.getElementById("icpeCheck")
+.disabled = false;
+
+document
+.getElementById("naturaCheck")
+.disabled = false;
+
+document
+.getElementById("icpeCheck")
+.checked =
+!!currentData.icpe;
+
+document
+.getElementById("naturaCheck")
+.checked =
+!!currentData.natura;
+
+refreshLayers();
+
+map.setView([
+currentLat,
+currentLon
+],11);
+
+}
+
+
+/* =========================================
+DELETE CAPSULE
+========================================= */
+
+async function deleteCapsule(id){
+
+if(
+!confirm(
+"Supprimer cette capsule ?"
+)
+){
+return;
+}
+
+await deleteCapsuleFromDB(id);
+
+await loadCapsules();
+
+}
+
+
+/* =========================================
+EVENTS
+========================================= */
+
+document
+.getElementById("openFileBtn")
+.addEventListener(
+"click",
+()=>{
+
+document
+.getElementById("importFileInput")
+.click();
+
+}
+);
+
+document
+.getElementById("importFileInput")
+.addEventListener(
+"change",
+async function(e){
+
+if(e.target.files.length > 0){
+
+await importCapsules(
+e.target.files[0]
+);
+
+}
+
+}
+);
+
+document
+.getElementById("exportAllBtn")
+.addEventListener(
+"click",
+async ()=>{
+
+await exportAllCapsules();
+
+}
+);
+
+
+/* =========================================
+INIT
+========================================= */
+
+(async ()=>{
+
+await openDatabase();
+
+await loadCapsules();
+
+})();
+
+</script>
+
+</body>
+</html>
