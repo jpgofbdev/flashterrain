@@ -3,12 +3,9 @@
 <head>
 
 <meta charset="UTF-8">
-<meta name="viewport"
-content="width=device-width, initial-scale=1.0">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<title>
-FlashTerrain - Capsules
-</title>
+<title>FlashTerrain - Capsules</title>
 
 <link rel="stylesheet"
 href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
@@ -24,6 +21,10 @@ height:100%;
 overflow:hidden;
 font-family:"Segoe UI",Arial,sans-serif;
 }
+
+/* =========================================
+HEADER
+========================================= */
 
 #header{
 position:absolute;
@@ -60,6 +61,10 @@ font-size:14px;
 opacity:.88;
 }
 
+/* =========================================
+MAP
+========================================= */
+
 #map{
 position:absolute;
 top:72px;
@@ -67,6 +72,10 @@ bottom:0;
 left:0;
 right:0;
 }
+
+/* =========================================
+PANELS DESKTOP
+========================================= */
 
 .panel{
 position:absolute;
@@ -81,6 +90,7 @@ border-radius:18px;
 padding:18px;
 box-shadow:
 0 4px 18px rgba(0,0,0,.18);
+transition:.25s;
 }
 
 #livePanel{
@@ -90,6 +100,10 @@ left:18px;
 #capsulePanel{
 right:18px;
 }
+
+/* =========================================
+PANELS CONTENT
+========================================= */
 
 .panel h2{
 margin:0 0 12px;
@@ -165,6 +179,10 @@ font-size:13px;
 color:#244;
 }
 
+/* =========================================
+BUTTONS
+========================================= */
+
 button{
 border:0;
 background:
@@ -194,6 +212,10 @@ background:#5f6f7a;
 .danger{
 background:#9b3a3a;
 }
+
+/* =========================================
+CAPSULES
+========================================= */
 
 .capsule{
 padding:12px;
@@ -231,33 +253,16 @@ font-size:12px;
 padding:7px 10px;
 }
 
-.context-popup{
-font-size:13px;
-line-height:1.45;
-}
-
-.context-section{
-margin-top:10px;
-padding-top:8px;
-border-top:1px solid #ddd;
-}
-
-.context-title{
-font-weight:700;
-margin-bottom:4px;
-}
-
-.context-item{
-margin-left:8px;
-margin-bottom:4px;
-}
-
 .toolbar{
 display:flex;
 gap:8px;
 flex-wrap:wrap;
 margin-bottom:12px;
 }
+
+/* =========================================
+LEAFLET
+========================================= */
 
 .leaflet-control-layers{
 border:none!important;
@@ -269,26 +274,165 @@ background:
 rgba(255,255,255,.95)!important;
 }
 
-@media(max-width:850px){
+/* =========================================
+MOBILE FLOAT BUTTONS
+========================================= */
 
-.panel{
-left:10px!important;
-right:10px!important;
-width:auto;
-max-height:35vh;
+.mobileFab{
+display:none;
 }
 
-#capsulePanel{
-top:auto;
-bottom:10px;
+.mobileClose{
+display:none;
+}
+
+/* =========================================
+MOBILE MODE
+========================================= */
+
+@media(max-width:850px){
+
+#header{
+height:68px;
+padding:0 18px;
 }
 
 #header h1{
-font-size:24px;
+font-size:22px;
 }
 
 #header span{
 display:none;
+}
+
+#map{
+top:68px;
+}
+
+.panel{
+
+left:0!important;
+right:0!important;
+bottom:0!important;
+top:auto!important;
+
+width:auto!important;
+max-height:48vh;
+
+margin:0;
+
+border-radius:
+24px 24px 0 0;
+
+padding:
+18px 18px 24px 18px;
+
+transform:
+translateY(110%);
+
+overflow:auto;
+
+background:
+rgba(255,255,255,.98);
+
+backdrop-filter:
+blur(12px);
+
+box-shadow:
+0 -4px 24px rgba(0,0,0,.22);
+
+}
+
+.panel.mobile-visible{
+transform:translateY(0);
+}
+
+.mobileFab{
+display:flex;
+
+position:absolute;
+
+left:12px;
+
+z-index:4000;
+
+width:52px;
+height:52px;
+
+border-radius:18px;
+
+align-items:center;
+justify-content:center;
+
+font-size:24px;
+
+background:
+rgba(255,255,255,.96);
+
+backdrop-filter:
+blur(8px);
+
+box-shadow:
+0 3px 12px rgba(0,0,0,.22);
+
+cursor:pointer;
+}
+
+#contextFab{
+top:84px;
+}
+
+#capsuleFab{
+top:146px;
+}
+
+.mobileClose{
+display:flex;
+
+align-items:center;
+justify-content:center;
+
+position:absolute;
+
+top:12px;
+right:14px;
+
+width:34px;
+height:34px;
+
+border-radius:50%;
+
+background:#eef2f5;
+
+font-size:20px;
+
+cursor:pointer;
+}
+
+.panel h2{
+font-size:20px;
+padding-right:40px;
+}
+
+button{
+min-height:48px;
+font-size:15px;
+}
+
+.actions{
+gap:10px;
+}
+
+.actions button{
+flex:1;
+}
+
+.leaflet-top{
+top:8px;
+}
+
+.leaflet-control-zoom{
+margin-top:160px!important;
 }
 
 }
@@ -298,6 +442,10 @@ display:none;
 </head>
 
 <body>
+
+<!-- =========================================
+HEADER
+========================================= -->
 
 <div id="header">
 
@@ -310,7 +458,28 @@ Capsules territoriales offline
 
 </div>
 
+<!-- =========================================
+MOBILE FLOATING BUTTONS
+========================================= -->
+
+<div id="contextFab" class="mobileFab">
+🌐
+</div>
+
+<div id="capsuleFab" class="mobileFab">
+📦
+</div>
+
+<!-- =========================================
+LIVE PANEL
+========================================= -->
+
 <div id="livePanel" class="panel">
+
+<div class="mobileClose"
+onclick="closeMobilePanels()">
+✕
+</div>
 
 <h2>
 🌐 Contexte
@@ -383,7 +552,16 @@ Aucun contexte chargé.
 
 </div>
 
+<!-- =========================================
+CAPSULE PANEL
+========================================= -->
+
 <div id="capsulePanel" class="panel">
+
+<div class="mobileClose"
+onclick="closeMobilePanels()">
+✕
+</div>
 
 <h2>
 📦 Capsules
@@ -392,7 +570,7 @@ Aucun contexte chargé.
 <div class="toolbar">
 
 <button id="openFileBtn">
-📂 Ouvrir une capsule
+📂 Importer une capsule
 </button>
 
 <button id="exportAllBtn"
@@ -411,7 +589,7 @@ style="display:none;">
 <div class="small"
 style="margin-bottom:12px;">
 
-Les capsules sont automatiquement disponibles dans ce navigateur.<br>
+Les capsules créées ou importées sont automatiquement disponibles dans ce navigateur.<br>
 Vous pouvez également les sauvegarder sous forme de fichiers JSON.
 
 </div>
@@ -426,6 +604,10 @@ Aucune capsule disponible.
 
 </div>
 
+<!-- =========================================
+MAP
+========================================= -->
+
 <div id="map"></div>
 
 <script>
@@ -437,7 +619,6 @@ MAP
 const map =
 L.map("map")
 .setView([47.5,1.7],7);
-
 
 /* =========================================
 BASEMAP
@@ -468,16 +649,12 @@ position:"bottomleft"
 }
 ).addTo(map);
 
-
 /* =========================================
 INDEXED DB
 ========================================= */
 
-const DB_NAME =
-"FlashTerrainDB";
-
-const STORE_NAME =
-"capsules";
+const DB_NAME = "FlashTerrainDB";
+const STORE_NAME = "capsules";
 
 let db;
 
@@ -605,13 +782,11 @@ e => reject(e);
 
 }
 
-
 /* =========================================
 STATE
 ========================================= */
 
-let interactionMode =
-"explore";
+let interactionMode = "explore";
 
 let currentLat = null;
 let currentLon = null;
@@ -621,6 +796,65 @@ icpe:null,
 natura:null
 };
 
+/* =========================================
+MOBILE DETECTION
+========================================= */
+
+function isMobile(){
+return window.innerWidth < 850;
+}
+
+/* =========================================
+MOBILE PANELS
+========================================= */
+
+function closeMobilePanels(){
+
+if(!isMobile()){
+return;
+}
+
+document
+.getElementById("livePanel")
+.classList.remove("mobile-visible");
+
+document
+.getElementById("capsulePanel")
+.classList.remove("mobile-visible");
+
+}
+
+function openMobilePanel(panelId){
+
+if(!isMobile()){
+return;
+}
+
+closeMobilePanels();
+
+document
+.getElementById(panelId)
+.classList.add("mobile-visible");
+
+}
+
+document
+.getElementById("contextFab")
+.addEventListener(
+"click",
+function(){
+openMobilePanel("livePanel");
+}
+);
+
+document
+.getElementById("capsuleFab")
+.addEventListener(
+"click",
+function(){
+openMobilePanel("capsulePanel");
+}
+);
 
 /* =========================================
 MODE
@@ -682,15 +916,11 @@ document
 setMode("newPoint");
 });
 
-
 /* =========================================
 LAYERS
 ========================================= */
 
 const markerLayer =
-L.layerGroup().addTo(map);
-
-const bufferLayer =
 L.layerGroup().addTo(map);
 
 const icpeLayer =
@@ -721,7 +951,6 @@ fillOpacity:.18
 
 }
 }).addTo(map);
-
 
 /* =========================================
 NATURA API
@@ -759,7 +988,6 @@ features:[]
 };
 
 }
-
 
 /* =========================================
 ICPE API
@@ -802,16 +1030,7 @@ Number(i.latitude)
 
 properties:{
 raisonSociale:
-i.raisonSociale || null,
-
-commune:
-i.commune || null,
-
-regime:
-i.regime || null,
-
-siret:
-i.siret || null
+i.raisonSociale || null
 }
 
 }));
@@ -823,7 +1042,6 @@ features
 
 }
 
-
 /* =========================================
 LOAD CONTEXT
 ========================================= */
@@ -834,8 +1052,6 @@ currentLat = lat;
 currentLon = lon;
 
 markerLayer.clearLayers();
-bufferLayer.clearLayers();
-
 icpeLayer.clearLayers();
 naturaLayer.clearLayers();
 
@@ -847,34 +1063,12 @@ document
 L.marker([lat,lon])
 .addTo(markerLayer);
 
-L.circle(
-[lat,lon],
-{
-radius:10000,
-color:"#8e44ad",
-dashArray:"6,6",
-fillOpacity:0.03
-}
-).addTo(bufferLayer);
-
-L.circle(
-[lat,lon],
-{
-radius:2000,
-color:"#2ca25f",
-dashArray:"4,4",
-fillOpacity:0.02
-}
-).addTo(bufferLayer);
-
 try{
 
 currentData.icpe =
 await queryIcpeReelles(lat,lon);
 
 }catch(err){
-
-console.error(err);
 
 currentData.icpe = {
 type:"FeatureCollection",
@@ -889,8 +1083,6 @@ currentData.natura =
 await queryNaturaHabitats(lat,lon);
 
 }catch(err){
-
-console.error(err);
 
 currentData.natura = {
 type:"FeatureCollection",
@@ -939,13 +1131,16 @@ ${currentData.natura.features.length}
 
 }
 
-
 /* =========================================
 MAP CLICK
 ========================================= */
 
 map.on("click",
 async function(e){
+
+if(isMobile()){
+closeMobilePanels();
+}
 
 if(interactionMode === "newPoint"){
 
@@ -956,178 +1151,9 @@ e.latlng.lng
 
 setMode("explore");
 
-return;
-
-}
-
-showContextPopup(e);
-
-});
-
-
-/* =========================================
-POPUP
-========================================= */
-
-function showContextPopup(e){
-
-if(
-!currentData.icpe &&
-!currentData.natura
-){
-return;
-}
-
-const clickPoint =
-turf.point([
-e.latlng.lng,
-e.latlng.lat
-]);
-
-let html =
-'<div class="context-popup">' +
-'<b>📍 Contexte sous le clic</b>';
-
-let found = false;
-
-const icpeHits = [];
-
-if(
-document
-.getElementById("icpeCheck")
-.checked &&
-currentData.icpe
-){
-
-currentData.icpe.features
-.forEach(f => {
-
-const coords =
-f.geometry.coordinates;
-
-const dist =
-turf.distance(
-clickPoint,
-turf.point(coords),
-{units:"kilometers"}
-);
-
-if(dist < 0.25){
-
-icpeHits.push(f);
-
 }
 
 });
-
-}
-
-if(icpeHits.length > 0){
-
-found = true;
-
-html +=
-'<div class="context-section">' +
-'<div class="context-title">' +
-'🏭 ICPE (' +
-icpeHits.length +
-')</div>';
-
-icpeHits.forEach(f => {
-
-html +=
-'<div class="context-item">• ' +
-(
-f.properties.raisonSociale ||
-"ICPE"
-) +
-'</div>';
-
-});
-
-html += '</div>';
-
-}
-
-const naturaHits = [];
-
-if(
-document
-.getElementById("naturaCheck")
-.checked &&
-currentData.natura
-){
-
-currentData.natura.features
-.forEach(f => {
-
-try{
-
-const inside =
-turf.booleanPointInPolygon(
-clickPoint,
-f
-);
-
-if(inside){
-
-naturaHits.push(f);
-
-}
-
-}catch(err){}
-
-});
-
-}
-
-if(naturaHits.length > 0){
-
-found = true;
-
-html +=
-'<div class="context-section">' +
-'<div class="context-title">' +
-'🌿 Natura 2000 (' +
-naturaHits.length +
-')</div>';
-
-naturaHits.forEach(f => {
-
-const p =
-f.properties || {};
-
-html +=
-'<div class="context-item">• ' +
-(
-p.nom_site ||
-p.SITENAME ||
-p.nom ||
-"Natura 2000"
-) +
-'</div>';
-
-});
-
-html += '</div>';
-
-}
-
-if(found){
-
-html += '</div>';
-
-L.popup({
-maxWidth:320
-})
-.setLatLng(e.latlng)
-.setContent(html)
-.openOn(map);
-
-}
-
-}
-
 
 /* =========================================
 REFRESH LAYERS
@@ -1173,7 +1199,6 @@ document
 "change",
 refreshLayers
 );
-
 
 /* =========================================
 PREVIEW
@@ -1251,7 +1276,6 @@ ${objectCount}
 `;
 
 }
-
 
 /* =========================================
 CREATE CAPSULE
@@ -1332,12 +1356,7 @@ layers,
 layerLabels:
 labels,
 
-sizeKo:null,
-
-metadata:{
-version:"1.0",
-source:"FlashTerrain"
-}
+sizeKo:null
 
 };
 
@@ -1348,12 +1367,15 @@ await saveCapsuleToDB(capsule);
 
 await loadCapsules();
 
+if(isMobile()){
+closeMobilePanels();
+}
+
 alert(
 "Capsule créée."
 );
 
 }
-
 
 /* =========================================
 EXPORT
@@ -1434,13 +1456,10 @@ const capsule =
 capsules.find(c => c.id === id);
 
 if(capsule){
-
 exportCapsule(capsule);
-
 }
 
 }
-
 
 /* =========================================
 IMPORT
@@ -1476,11 +1495,10 @@ await loadCapsules();
 
 alert(
 imported.length +
-" capsule(s) ouverte(s)."
+" capsule(s) importée(s)."
 );
 
 }
-
 
 /* =========================================
 LOAD CAPSULES
@@ -1569,7 +1587,7 @@ capsule.sizeKo +
 
 '<button class="secondary" onclick="openCapsule(' +
 capsule.id +
-')">📂 Ouvrir</button>' +
+')">👁 Afficher</button>' +
 
 '<button onclick="exportCapsuleById(' +
 capsule.id +
@@ -1586,7 +1604,6 @@ container.appendChild(div);
 });
 
 }
-
 
 /* =========================================
 OPEN CAPSULE
@@ -1613,13 +1630,11 @@ capsule.lon;
 currentData = {
 icpe:
 capsule.layers.icpe || null,
-
 natura:
 capsule.layers.natura || null
 };
 
 markerLayer.clearLayers();
-bufferLayer.clearLayers();
 
 icpeLayer.clearLayers();
 naturaLayer.clearLayers();
@@ -1654,8 +1669,11 @@ currentLat,
 currentLon
 ],11);
 
+if(isMobile()){
+closeMobilePanels();
 }
 
+}
 
 /* =========================================
 DELETE CAPSULE
@@ -1676,7 +1694,6 @@ await deleteCapsuleFromDB(id);
 await loadCapsules();
 
 }
-
 
 /* =========================================
 EVENTS
@@ -1722,7 +1739,6 @@ await exportAllCapsules();
 
 }
 );
-
 
 /* =========================================
 INIT
