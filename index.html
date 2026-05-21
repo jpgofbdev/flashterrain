@@ -427,14 +427,6 @@ gap:10px;
 flex:1;
 }
 
-.leaflet-top{
-top:8px;
-}
-
-.leaflet-control-zoom{
-margin-top:160px!important;
-}
-
 }
 
 </style>
@@ -587,10 +579,18 @@ style="display:none;">
 </div>
 
 <div class="small"
-style="margin-bottom:12px;">
+style="
+margin-bottom:12px;
+padding:10px;
+background:#eef3f6;
+border-radius:10px;
+">
 
-Les capsules créées ou importées sont automatiquement disponibles dans ce navigateur.<br>
-Vous pouvez également les sauvegarder sous forme de fichiers JSON.
+📂 Les capsules exportées sont enregistrées dans le dossier
+<b>Téléchargements / Downloads</b>
+du téléphone ou de l’ordinateur.<br><br>
+
+Les capsules créées ou importées restent automatiquement disponibles dans ce navigateur.
 
 </div>
 
@@ -617,7 +617,9 @@ MAP
 ========================================= */
 
 const map =
-L.map("map")
+L.map("map",{
+zoomControl:false
+})
 .setView([47.5,1.7],7);
 
 /* =========================================
