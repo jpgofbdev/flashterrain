@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>FlashTerrain - Capsules</title>
+
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
+<link rel="stylesheet" href="./css/style.css"/>
+
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<script src="https://unpkg.com/@turf/turf@6/turf.min.js"></script>
+</head>
+
+<body>
+
+<div id="header">
+  <div>
+    <h1>FlashTerrain</h1>
+    <span>Capsules territoriales offline</span>
+  </div>
+</div>
+
+<div id="contextFab" class="mobileFab">🌐</div>
+<div id="capsuleFab" class="mobileFab">📦</div>
+
+<div id="livePanel" class="panel">
+  <div class="mobileClose" id="closeLivePanel">✕</div>
+
+  <h2>🌐 Contexte</h2>
+
+  <div class="small">
+    Le mode actif détermine le comportement du clic sur la carte.
+  </div>
+
+  <div class="modeBar">
+    <div id="exploreModeBtn" class="modeButton active">🛰 Explorer</div>
+    <div id="newPointModeBtn" class="modeButton">➕ Nouveau point</div>
+  </div>
+
+  <div id="modeInfo" class="modeInfo">
+    Mode exploration : le clic affiche les objets présents.
+  </div>
+
+  <div class="thematic-group">
+    <div class="thematic-header" data-theme="hydroTheme">
+      <span>💧 Hydrologie</span>
+      <span>▼</span>
+    </div>
+
+    <div class="thematic-content" id="hydroTheme">
+      <label>
+        <input type="checkbox" id="topageCheck" disabled>
+        Cours d’eau BD Topage — bbox 2 km
+      </label>
+
+      <label>
+        <input type="checkbox" id="bvCheck" disabled>
+        Bassin versant Topage — BV contenant le point
+      </label>
+    </div>
+  </div>
+
+  <div class="thematic-group">
+    <div class="thematic-header" data-theme="pressureTheme">
+      <span>🏭 Pressions</span>
+      <span>▼</span>
+    </div>
+
+    <div class="thematic-content" id="pressureTheme">
+      <label>
+        <input type="checkbox" id="icpeCheck" disabled>
+        ICPE — rayon 10 km
+      </label>
+    </div>
+  </div>
+
+  <div class="thematic-group">
+    <div class="thematic-header" data-theme="zonageTheme">
+      <span>🌿 Zonages</span>
+      <span>▼</span>
+    </div>
+
+    <div class="thematic-content" id="zonageTheme">
+      <label>
+        <input type="checkbox" id="naturaCheck" disabled>
+        Natura 2000 — buffer 2 km
+      </label>
+    </div>
+  </div>
+
+  <div class="notice">
+    Une capsule contient uniquement les couches cochées et visibles.
+  </div>
+
+  <div id="capsulePreview" class="capsule-preview">
+    Aucune capsule en préparation.
+  </div>
+
+  <button id="saveBtn" disabled>💾 Créer une capsule</button>
+
+  <div id="liveInfo" class="live-info">
+    Aucun contexte chargé.
+  </div>
+</div>
+
+<div id="capsulePanel" class="panel">
+  <div class="mobileClose" id="closeCapsulePanel">✕</div>
+
+  <h2>📦 Capsules</h2>
+
+  <div class="toolbar">
+    <button id="openFileBtn">📂 Importer une capsule</button>
+    <button id="exportAllBtn" class="secondary">⬇ Sauvegarder tout</button>
+    <input type="file" id="importFileInput" accept=".json" style="display:none;">
+  </div>
+
+  <div class="small export-help">
+    📂 Les capsules exportées sont enregistrées dans :
+    <b>Téléchargements / Downloads</b>
+  </div>
+
+  <div id="capsuleList">
+    <div class="small">Aucune capsule disponible.</div>
+  </div>
+</div>
+
+<div id="map"></div>
+
+<script type="module" src="./js/main.js"></script>
+</body>
+</html>
